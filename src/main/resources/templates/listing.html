@@ -1,0 +1,70 @@
+{#include partial/base}
+{#let talksResponse=cdi:talksService.byEmail(user:email)}
+{#let talks=talksResponse.sessionsFor(conference:current)}
+{#let closed=cdi:timeline.isClosed(user:extension)}
+    <h1>My talks</h1>
+
+    <div class="split">
+        <div>
+            <h2>Submitted talks</h2>
+
+            <ul class="details">
+                {#if talksResponse.sessions.size() != talks.size()}
+                <li><a href="/talk">All talks</a></li>
+                {/if}
+                {#if !closed}
+                <li><a href="/talk/new">New talk</a></li>
+                {/if}
+            </ul>
+
+            {#if closed}
+                <div class="submit">
+                    <p>We are past the deadline for new submissions</p>
+
+                    <form hx-post="/login/extend" hx-target="body">
+                        <input type="text" name="code" placeholder="Code for extension" required="required"/>
+                        <button>Verify</button>
+                    </form>
+                </div>
+            {/if}
+
+            {#if talks.isEmpty}
+                {#if closed}
+                <p>No submissions for this year</p>
+                {#else}
+                <p>No submissions for this year - go ahead and create a proposal!</p>
+                {/if}
+            {#else}
+                {#for session in talks}
+                    <div class="session-item">
+                        <a href="/talk/{session.sessionId}">{session.data["title"]}</a>
+
+                        <ul>
+                            <li>{Kind:of(session.data).name}</li>
+                            <li>{Language:of(session.data).name}</li>
+                            {#if session.status == "APPROVED"}
+                            <li>Approved</li>
+                            {/if}
+                            <li><a href="/talk/{session.sessionId}/edit">Edit</a></li>
+                        </ul>
+                    </div>
+                {/for}
+            {/if}
+        </div>
+        <div id="timeline">
+            <h2>Timeline</h2>
+
+            <h3>{cdi:timeline.format(cdi:timeline.opening)} – {cdi:timeline.format(cdi:timeline.closing)}: Finish your submission</h3>
+            <p>We receive hundreds of submissions and will therefore be evaluating submissions as they arrive. In other words, submit early to increase your chances of being accepted! Note that you can still update your talk, but please do not rewrite your entire proposal after you have sent it to us.</p>
+
+            <h3><span class="deadline">{cdi:timeline.format(cdi:timeline.closing)}</span>: Submission deadline</h3>
+            <p>This is the last day to submit your proposal to the program committee. No new submissions will be accepted after this date! The earlier you submit, the better are your chances for getting accepted at JavaZone.</p>
+
+            <h3>{cdi:timeline.format(cdi:timeline.feedback)}: Get feedback</h3>
+            <p>By this day, at the latest, all speakers are informed about whether their talk was selected or not. Fingers crossed!</p>
+
+            <h3>{cdi:timeline.format(cdi:timeline.refund)}: Deadline for refund application</h3>
+            <p>If you are traveling to Oslo without receiving coverage by your employer, you can have your expenses covered by us. In order to plan our budget, we need you to apply for coverage. You will receive information on the process in the email that confirms that your submission was accepted. Please note that only presentation speakers and workshop facilitators are eligible for such coverage.</p>
+        </div>
+    </div>
+{/include}

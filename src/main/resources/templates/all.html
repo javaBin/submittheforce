@@ -1,0 +1,36 @@
+{#include partial/base}
+{#let closed=cdi:timeline.isClosed(user:extension)}
+    <h1>All talks</h1>
+
+    {#let talksResponse=cdi:talksService.byEmail(user:email)}
+
+    {#if talksResponse.sessions.isEmpty}
+        <p>Found no talks</p>
+    {#else}
+        {#if !closed}
+        <ul class="details">
+            <li><a href="/talk/new">New proposal</a></li>
+        </ul>
+        {/if}
+
+        {#for conference in conference:all.reversed}
+            {#let talks=talksResponse.sessionsFor(conference)}
+            {#if !talks.isEmpty}
+                <h2>{conference.name}</h2>
+
+                {#for session in talks}
+                    <div class="session-item">
+                        <a href="/talk/{session.sessionId}">{session.data["title"]}</a>
+
+                        <ul>
+                            <li>{Kind:of(session.data).name}</li>
+                            <li>{Language:of(session.data).name}</li>
+                        </ul>
+                    </div>
+                {/for}
+            {/if}
+        {/for}
+
+    {/if}
+
+{/include}

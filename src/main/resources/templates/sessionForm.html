@@ -1,0 +1,158 @@
+{#include partial/base}
+{#if sessionId == null}
+<h1>New talk</h1>
+{#else}
+<h1>Edit talk</h1>
+{/if}
+
+<form id="talkForm" method="post" class="talk">
+    <h2>About</h2>
+
+    {#include partial/forms$inputText
+        title="Title" path="title" value=form.title type="text" required=true
+        placeholder="A short and snappy title"
+        description="Name your lightning talk, presentation or workshop in a way that draws attention to your submission while also capturing its content. Many participants will use this title to decide if they even read your abstract, so we recommend you to think a few minutes about this name." /}
+
+    <div class="split">
+    <div class="field required{#if val.containsKey("kind")} error{/if}"">
+        <label for="form-kind">Kind</label>
+        <p>In which format are you presenting your talk and how long is it? This is not subject to adjustment by the program committee, so please submit additional proposals if your content may fit multiple alternatives.</p>
+        <select name="kind" id="form-kind">
+            {#for k in Kind:values}
+                {#if k.active}
+                <option value="{k}"{#if form.kind == k} selected="selected"{/if}>{k.name}</option>
+                {/if}
+            {/for}
+        </select>
+        {#include partial/forms$validation path="kind" /}
+    </div>
+
+    <div class="field required{#if val.containsKey("language")} error{/if}"">
+        <label for="form-language">Language</label>
+        <p>In which language will you be holding the talk? It is permitted to use English in your slides, even though you may be speaking in Norwegian, but you should fill out this form in the language you will speak in. We generally recommend that you hold the talk in the language you are most comfortable with, as we do not favor one language over the other.</p>
+        <select name="language" id="form-language">
+            {#for v in Language:values}
+                <option value="{v}"{#if form.language == v} selected="selected"{/if}>{v.name}</option>
+            {/for}
+        </select>
+        {#include partial/forms$validation path="language" /}
+    </div>
+    </div>
+
+    {#include partial/forms$textarea
+        title="Description" path="abstractText" value=form.abstractText rows="5" required=true
+        placeholder=null
+        description="Give a concise description of the content and goals of your talk and what audience this presentation or workshop is for. Try not to exceed 300 words, as shorter and more to-the-point descriptions are more likely to be read by participants." /}
+
+    {#include partial/forms$inputText
+        title="Expected audience" path="intendedAudience" value=form.intendedAudience type="text" required=true
+        placeholder=null
+        description="Who should attend this session? How will the participants benefit from attending? What experience (if any) should the audience have to get the most value out of your talk?" /}
+
+    <div id="form-kind-only"{#if !form.kind.isWorkshop()}style="display: none;"{/if}>
+        {#include partial/forms$textarea
+            title="Workshop prerequisites" path="workshopPrerequisites" value=form.workshopPrerequisites rows="5" required=true
+            placeholder=null
+            description="If your workshop requires participants to make any preparations in advance (create an account at a cloud services provider, install a specific IDE etc.), please specify it." /}
+    </div>
+
+    {#include partial/forms$inputText
+        title="Suggested keywords" path="suggestedKeywords" value=form.suggestedKeywords type="text" required=false
+        placeholder=null
+        description="Suggest up to five keywords that describe your talk. Note that we only use these keywords as an orientation and often edit them to better fit into our published program." /}
+
+    <h2>Internal information (not public)</h2>
+
+    {#include partial/forms$textarea
+        title="Outline" path="outline" value=form.outline rows="10" required=true
+        placeholder=null
+        description="The information will be used by the Program Committee to review the details of your talk. The outline should be a rough agenda for the talk, with a short description for each section, and with a rough estimate of the time spent on each. Omitting this section will reduce the chances of your submission being accepted." /}
+
+    {#include partial/forms$textarea
+        title="Equipment" path="equipment" value=form.equipment rows="3" required=false
+        placeholder=null
+        description="Please specify any additional special equipment you may need. Note all will get access to WiFi and a projector." /}
+
+    {#include partial/forms$inputText
+        title="Your participation" path="participation" value=form.participation type="text" required=true
+        placeholder="Indicate here if you can not stay for both conference days"
+        description="We consider any speaker as a participant of our conference, and we hope that you can stay for both conference days. There is much to see and do during JavaZone, we promise that it will be a good investment of your time! If you cannot participate on both days, please let us know, such that we can consider this when creating the program. To simplify our planning, we can unfortunately not consider time preferences on a given day." /}
+
+    {#include partial/forms$textarea
+        title="Additional information for the program commitee" path="infoToProgramCommittee" value=form.infoToProgramCommittee rows="3" required=false
+        placeholder=null
+        description="Please include any information relevant to the program committee that you do not want to include in your public presentation profile. For example, you can give us your motivation for speaking at JavaZone, include links to videos and slides from previous speaker engagements or any other relevant information for choosing your talk." /}
+
+    <p>All talks at JavaZone are filmed, live-streamed and published for free at Vimeo after the conference. Should you have any reservations about this, let the program committee know in the field above. This might affect your chance of getting selected, but if you have a good reason please let us know.</p>
+
+    <div id="speakers">
+        {#for speaker in form.speakers}
+        {#fragment id=speaker}
+        <div class="speaker">
+            <h2>Speaker {speaker_count}</h2>
+
+            <div class="buttons small">
+                <button class="removeSpeaker" hx-trigger="click" hx-get="/talk/new/_speaker" hx-swap="delete" hx-target="closest .speaker" hx-on:afterSwap="updateSpeakers()">Remove speaker</button>
+            </div>
+
+            {#include partial/forms$inputText
+                title="Name" path=str:format("speakers[%s].name", speaker_index) value=speaker.name type="text" required=true
+                placeholder=null
+                description=null /}
+
+            <div class="split">
+            {#include partial/forms$inputText
+                title="Email (not public)" path=str:format("speakers[%s].email", speaker_index) value=speaker.email type="email" required=true
+                placeholder=null
+                description=null /}
+
+            {#include partial/forms$inputText
+                title="Twitter" path=str:format("speakers[%s].twitter", speaker_index) value=speaker.twitter type="text" required=false
+                placeholder="Twitter handle"
+                description=null /}
+            </div>
+
+            <div class="split">
+            {#include partial/forms$inputText
+                title="Bluesky" path=str:format("speakers[%s].bluesky", speaker_index) value=speaker.bluesky type="text" required=false
+                placeholder="Bluesky handle"
+                description=null /}
+
+            {#include partial/forms$inputText
+                title="LinkedIn" path=str:format("speakers[%s].linkedin", speaker_index) value=speaker.linkedin type="text" required=false
+                placeholder="Link to LinkedIn profile"
+                description=null /}
+            </div>
+
+            <div class="split">
+            {#include partial/forms$inputText
+                title="Country of residence (not public)" path=str:format("speakers[%s].residence", speaker_index) value=speaker.residence type="text" required=false
+                placeholder="Country of residence"
+                description="This is the country you will be travelling from to JavaZone. This information is intended to give us a better overview and will not be used in the selection process." /}
+
+            {#include partial/forms$inputText
+                title="Norwegian Postal Code (not public)" path=str:format("speakers[%s].zipCode", speaker_index) value=speaker.zipCode type="text" required=false
+                placeholder="Norwegian postcode"
+                description="JavaBin is always looking for good speakers to the local JavaBin user groups. By inserting your postal code may it be easier to find your." /}
+            </div>
+
+            {#include partial/forms$textarea
+                title="Bio" path=str:format("speakers[%s].bio", speaker_index) value=speaker.bio rows="3" required=true
+                placeholder="Tell the audience who this speaker is, and why she/he is the perfect person to hold this talk."
+                description="Short description of the speaker (try not to exceed 150 words)" /}
+        </div>
+        {/fragment}
+        {/for}
+    </div>
+
+    <div class="buttons">
+        <button class="addSpeaker" hx-get="/talk/new/_speaker" hx-swap="beforeend" hx-target="#speakers">Add speaker</button>
+    </div>
+
+    <div class="buttons">
+        <a href="{#if sessionId == null}/{#else}/talk/{sessionId}{/if}">Cancel</a>
+        <button type="submit">Save</button>
+    </div>
+</form>
+
+{/include}

@@ -1,0 +1,29 @@
+{#fragment inputText}
+<div class="field{#if required} required{/if}{#if val.containsKey(path)} error{/if}">
+    <label for="form-{path}">{title}</label>
+    {#if description != null}
+    <p>{description}</p>
+    {/if}
+    <input type="{type}" name="{path}" value="{value}" id="form-{path}"{#if placeholder != null} placeholder="{placeholder}"{/if}/>
+    {#include partial/forms$validation /}
+</div>
+{/fragment}
+
+{#fragment textarea}
+<div class="field{#if required} required{/if}{#if val.containsKey(path)} error{/if}">
+    <label for="form-{path}">{title}</label>
+    {#if description != null}
+    <p>{description}</p>
+    {/if}
+    <textarea name="{path}" rows="{rows}" id="form-{path}">{value}</textarea>
+    {#include partial/forms$validation /}
+</div>
+{/fragment}
+
+{#fragment validation}
+    {#if val.containsKey(path)}
+        {#for v in val.get(path)}
+            <div class="message">{v.message}</div>
+        {/for}
+    {/if}
+{/fragment}

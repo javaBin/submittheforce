@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <title>{conference:current.name}</title>
+
+    {#bundle /}
+    <script src="/static/jquery-3.7.1.js"></script>
+    <script src="/static/speakers.js"></script>
+</head>
+<body hx-boost="true">
+
+<header>
+    <div class="content">
+        <div class="identity">
+            <a href="/" class="title">{conference:current.name}</a>
+            <span class="subtitle">Speaker Submission</span>
+        </div>
+        {#if !user:isAnonymous}
+        <div class="user">
+            <span>{user:email}</span>
+            <span><a href="/logout" hx-boost="false">Log out</a></span>
+        </div>
+        {/if}
+    </div>
+</header>
+
+<div id="main">
+    <div class="content">
+    {#insert}No content{/}
+    </div>
+</div>
+
+<footer>
+    <div class="content">
+        <span>Powered by <a href="https://www.java.no/">JavaBin</a></span>
+    </div>
+</footer>
+
+</body>
+</html>

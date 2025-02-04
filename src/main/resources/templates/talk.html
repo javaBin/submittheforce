@@ -1,0 +1,73 @@
+{#include partial/base}
+    <h1>{session.data["title"]}</h1>
+
+    <ul class="details">
+        <li>{Kind:of(session.data).name}</li>
+        {#if session.data.containsKey("language")}
+        <li>{Language:of(session.data["language"].value).name}</li>
+        {/if}
+        {#if session.conferenceId != conference:current.id}
+        <li>{conferences.id(session.conferenceId).name}</li>
+        {/if}
+        {#if session.conferenceId == conference:current.id}
+        <li><a href="/talk/{session.sessionId}/edit">Edit</a></li>
+        {/if}
+    </ul>
+
+    {#if session.status == "DRAFT" && session.conferenceId == conference:current.id}
+    <div class="submit">
+        <form>
+            <p>This proposal is still a draft.</p>
+
+            <button hx-post="/talk/{session.sessionId}/submit" hx-target="body">Submit this talk</button>
+        </form>
+    </div>
+    {/if}
+
+    <dl class="preview">
+        <dt>Abstract</dt>
+        <dd class="textarea">{session.data["abstract"]}</dd>
+
+        {#if session.data.containsKey("intendedAudience")}
+        <dt>Intended audience</dt>
+        <dd class="textarea">{session.data["intendedAudience"]}</dd>
+        {/if}
+    </dl>
+
+    <h2>Internal information (not public)</h2>
+
+    <dl class="preview">
+        <dt>Outline</dt>
+        <dd class="textarea">{session.data["outline"]}</dd>
+
+        {#if session.data.containsKey("infoToProgramCommittee") && session.data["infoToProgramCommittee"].value != ""}
+        <dt>Info to Program Committee</dt>
+        <dd class="textarea">{session.data["infoToProgramCommittee"]}</dd>
+        {/if}
+    </dl>
+
+    <h2>Speaker{#if session.speakers.size > 1}s{/if}</h2>
+
+    {#for speaker in session.speakers}
+        <h3>{speaker.name}</h3>
+
+        {#if speaker.data.containsKey("twitter") || speaker.data.containsKey("bluesky") || speaker.data.containsKey("linkedin")}
+        <ul class="details">
+            {#if speaker.data.containsKey("bluesky")}
+            <li><a href="https://bsky.app/profile/{speaker.data["bluesky"].value.replaceAll("^@", "")}">Bluesky</a></li>
+            {/if}
+            {#if speaker.data.containsKey("twitter")}
+            <li><a href="https://twitter.com/{speaker.data["twitter"]}">Twitter</a></li>
+            {/if}
+            {#if speaker.data.containsKey("linkedin")}
+            <li><a href="{speaker.data["linkedin"]}">LinkedIn</a></li>
+            {/if}
+        </ul>
+        {/if}
+
+        {#if speaker.data.containsKey("bio")}
+        <p style="white-space: pre-wrap;">{speaker.data["bio"]}</p>
+        {/if}
+    {/for}
+
+{/include}
