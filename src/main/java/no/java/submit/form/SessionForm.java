@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import no.java.submit.model.Category;
 import no.java.submit.model.Kind;
 import no.java.submit.model.Language;
 import no.java.submit.service.TalksService;
@@ -14,37 +15,39 @@ import java.util.Map;
 
 public class SessionForm {
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String title;
 
     @Valid
     public List<SpeakerForm> speakers;
 
-    @NotNull
+    @NotNull(message = "Must be provided")
     public Kind kind;
 
-    @NotNull
+    @NotNull(message = "Must be provided")
     public Language language;
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String abstractText;
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String outline;
 
     public String equipment;
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String participation;
 
     public String suggestedKeywords;
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String intendedAudience;
 
     public String workshopPrerequisites;
 
     public String infoToProgramCommittee;
+
+    public Category suggestedCategory;
 
     @AssertTrue(message = "Must select a valid option")
     // Make sure one of the active kinds are selected
@@ -55,6 +58,11 @@ public class SessionForm {
     @AssertTrue(message = "Must be provided for workshops")
     private boolean isWorkshopPrerequisites() {
         return !kind.isWorkshop() || (workshopPrerequisites != null && !workshopPrerequisites.isBlank());
+    }
+
+    @AssertTrue(message = "Maximum 3 speakers for workshops and 2 speakers for talks")
+    private boolean isSpeakers() {
+        return speakers.size() <= (kind.isWorkshop() ? 3 : 2);
     }
 
     public Map<String, TalksService.DataField<Object>> toData() {
@@ -70,6 +78,7 @@ public class SessionForm {
         result.put("intendedAudience", new TalksService.DataField<>(false, intendedAudience));
         result.put("suggestedKeywords", new TalksService.DataField<>(false, suggestedKeywords));
         result.put("infoToProgramCommittee", new TalksService.DataField<>(true, infoToProgramCommittee));
+        result.put("suggestedCategory", new TalksService.DataField<>(true, suggestedCategory != null ? suggestedCategory.tag : ""));
 
         if (kind.isWorkshop())
             result.put("workshopPrerequisites", new TalksService.DataField<>(true, workshopPrerequisites));
@@ -103,6 +112,8 @@ public class SessionForm {
             result.suggestedKeywords = (String) source.data.get("suggestedKeywords").value;
         if (source.data.containsKey("infoToProgramCommittee"))
             result.infoToProgramCommittee = (String) source.data.get("infoToProgramCommittee").value;
+        if (source.data.containsKey("suggestedCategory"))
+            result.suggestedCategory = Category.of((String) source.data.get("suggestedCategory").value);
 
         result.speakers = source.speakers.stream().map(SpeakerForm::parse).toList();
 

@@ -5,6 +5,8 @@
 <h1>Edit talk</h1>
 {/if}
 
+{#include partial/forms$validation path="speakers" /}
+
 <form id="talkForm" method="post" class="talk">
     <h2>About</h2>
 
@@ -67,6 +69,20 @@
         title="Outline" path="outline" value=form.outline rows="10" required=true
         placeholder=null
         description="The information will be used by the Program Committee to review the details of your talk. The outline should be a rough agenda for the talk, with a short description for each section, and with a rough estimate of the time spent on each. Omitting this section will reduce the chances of your submission being accepted." /}
+
+    <div class="field{#if val.containsKey("suggestedCategory")} error{/if}"">
+    <label for="form-suggestedCategory">Suggested category</label>
+    <p>Which category would fit your talk the best? This is used to understand the way the talk is leaning when in doubt. And we really love 'Miscellaneous', so if you don't plan to talk tech we'd still love to hear from you.</p>
+    <select name="suggestedCategory" id="form-suggestedCategory">
+        <option value="UNKNOWN" {#if form == null} selected="selected"{/if}></option>
+        {#for v in Category:values}
+            {#if v.active}
+            <option value="{v}"{#if form.suggestedCategory == v} selected="selected"{/if}>{v.description}</option>
+            {/if}
+        {/for}
+    </select>
+    {#include partial/forms$validation path="suggestedCategory" /}
+    </div>
 
     {#include partial/forms$textarea
         title="Equipment" path="equipment" value=form.equipment rows="3" required=false

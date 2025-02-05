@@ -32,7 +32,7 @@ public class SpeakerForm {
     @Pattern(regexp = "^$|^[0-9]{4}$", message = "Zip codes are 4 digits")
     public String zipCode;
 
-    @NotBlank
+    @NotBlank(message = "Must not be blank")
     public String bio;
 
     public Map<String, TalksService.DataField<Object>> toData() {

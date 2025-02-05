@@ -4,7 +4,7 @@
     {#if description != null}
     <p>{description}</p>
     {/if}
-    <input type="{type}" name="{path}" value="{value}" id="form-{path}"{#if placeholder != null} placeholder="{placeholder}"{/if}/>
+    <input type="{type}" name="{path}" value="{value}" id="form-{path}"{#if placeholder != null} placeholder="{placeholder}"{/if}{#if required} required="required"{/if}/>
     {#include partial/forms$validation /}
 </div>
 {/fragment}
@@ -23,7 +23,7 @@
 {#fragment validation}
     {#if val.containsKey(path)}
         {#for v in val.get(path)}
-            <div class="message">{v.message}</div>
+            <div class="message error">{v.message}</div>
         {/for}
     {/if}
 {/fragment}

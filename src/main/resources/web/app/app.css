@@ -12,6 +12,9 @@
     --submit-text-color: #fff;
     --submit-placeholder-color: #bbb;
 
+    --message-error-background-color: var(--accent-color);
+    --message-error-text-color: #fff;
+
     @media screen and (prefers-color-scheme: dark) {
         --background-color: #222;
         --text-color: #eee;
@@ -342,5 +345,15 @@ div.session-item {
               color: var(--subtext-color);
             }
         }
+    }
+}
+
+div.message {
+    &.error {
+        background-color: var(--message-error-background-color);
+        color: --message-error-text-color;
+        font-weight: bold;
+        padding: 5pt;
+        border-radius: 4pt;
     }
 }
