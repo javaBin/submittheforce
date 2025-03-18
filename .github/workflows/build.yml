@@ -24,3 +24,13 @@ jobs:
 
     - name: Build
       run: make build
+
+    - name: Upload asset
+      uses: k15g/action-github-asset-upload@edge
+      if: startsWith(github.ref, 'refs/tags/v')
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        file: target/submit-runner.jar
+        name: submit-runner.jar
+        type: application/java-archive
+        label: Uber-JAR

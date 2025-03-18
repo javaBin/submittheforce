@@ -92,6 +92,7 @@
     </dependencies>
 
     <build>
+        <finalName>submit</finalName>
         <plugins>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
