@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
-import no.java.submit.form.LoginForm;
 
 @Path("")
 public class HomeController {
@@ -23,7 +22,7 @@ public class HomeController {
     @Blocking
     public TemplateInstance get(@Context SecurityIdentity securityIdentity) {
         if (securityIdentity.isAnonymous()) {
-            return home.data("form", new LoginForm());
+            return home.instance();
         }
 
         return listing.instance();
