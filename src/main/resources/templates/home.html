@@ -5,14 +5,9 @@
             <span class="subtitle">Speaker Submission</span>
         </header>
 
-        {#fragment form}
-        <form action="/login" method="post" hx-post="/login" hx-swap="outerHTML">
-            <div class="field">
-                <input name="email" type="email" required="required" value="{form.email}" placeholder="Your email"/>
-            </div>
-            <button type="submit">Log in</button>
-        </form>
-        {/fragment}
+        <div class="login-button">
+            <a href="/talk" hx-boost="false">Log in</a>
+        </div>
 
         {#fragment sent rendered=false}
         <p class="sent">We have sent an email with a link for login.<br/>Please check your inbox.</p>

@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
-import no.java.submit.filter.SecurityFilter;
 import no.java.submit.form.SessionForm;
 import no.java.submit.form.SpeakerForm;
 import no.java.submit.model.Kind;
@@ -74,7 +73,8 @@ public class TalkController {
     @GET
     @Path("new")
     public TemplateInstance newSession(@Context SecurityIdentity securityIdentity) {
-        if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
+        // if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
+        if (timelineService.isClosed(false))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");
@@ -97,7 +97,8 @@ public class TalkController {
     @Path("new")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Object newSessionPost(SessionForm form, @Context SecurityIdentity securityIdentity) {
-        if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
+        // if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
+        if (timelineService.isClosed(false))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");

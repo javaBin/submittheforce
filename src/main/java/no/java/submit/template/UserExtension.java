@@ -1,10 +1,10 @@
 package no.java.submit.template;
 
 import io.quarkus.arc.Arc;
+import io.quarkus.oidc.runtime.OidcJwtCallerPrincipal;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.security.identity.CurrentIdentityAssociation;
 import io.quarkus.security.identity.SecurityIdentity;
-import no.java.submit.filter.SecurityFilter;
 
 // Makes user information available to templates as "user:[method]"
 @TemplateExtension(namespace = "user")
@@ -19,10 +19,11 @@ public class UserExtension {
     }
 
     public static String email() {
-        return get().getPrincipal().getName();
+        return ((OidcJwtCallerPrincipal) get().getPrincipal()).getClaim("email");
     }
 
     public static boolean extension() {
-        return ((SecurityFilter.MyPrincipal) get().getPrincipal()).hasExtension();
+        // return ((SecurityFilter.MyPrincipal) get().getPrincipal()).hasExtension();
+        return false;
     }
 }

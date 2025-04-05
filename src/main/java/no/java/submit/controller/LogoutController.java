@@ -12,7 +12,7 @@ public class LogoutController {
     public Response get() {
         return Response
                 .seeOther(UriBuilder.fromUri("/").build())
-                .header("Set-Cookie", "auth-session=; Max-Age=0")
+                .header("Set-Cookie", "q_session=; Max-Age=0")
                 .build();
     }
 }

@@ -357,3 +357,18 @@ div.message {
         border-radius: 4pt;
     }
 }
+
+div.login-button {
+    text-align: center;
+
+    a {
+        background-color: var(--accent-color);
+        color: var(--background-color);
+        padding: 5pt 10pt;
+        border-radius: 4pt;
+        text-decoration: none;
+        font-size: 1.1em;
+        display: inline-block;
+        margin-top: 20pt;
+    }
+}
