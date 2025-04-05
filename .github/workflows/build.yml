@@ -54,6 +54,6 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         platforms: linux/amd64,linux/arm64
-        path: src/main/docker/Dockerfile.jvm
+        file: src/main/docker/Dockerfile.jvm
         push: true
         tags: ghcr.io/javabin/submittheforce:edge
