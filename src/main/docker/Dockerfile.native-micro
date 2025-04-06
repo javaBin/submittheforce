@@ -1,3 +1,9 @@
+# Adding fetch stage to build the native image for multiple architectures
+FROM alpine AS fetch
+
+ADD target /target
+RUN mv /target/*-runner-linux-$(uname -m) /target/application
+
 ####
 # This Dockerfile is used in order to build a container that runs the Quarkus application in native (no JVM) mode.
 # It uses a micro base image, tuned for Quarkus native executables.
@@ -22,7 +28,9 @@ WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
     && chown 1001:root /work
-COPY --chown=1001:root target/*-runner /work/application
+
+# Modified to use the fetch stage
+COPY --from=fetch --chown=1001:root /target/application /work/application
 
 EXPOSE 8080
 USER 1001
