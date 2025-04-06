@@ -62,6 +62,8 @@ jobs:
       with:
         name: target
         path: target
+        if-no-files-found: error
+        retention-days: 7
 
     - name: Build and push [jvm-edge]
       run: docker buildx build --push -t ghcr.io/javabin/submittheforce:jvm-edge -f src/main/docker/Dockerfile.jvm --platform linux/amd64,linux/arm64 .
@@ -102,6 +104,7 @@ jobs:
       with:
         name: uber-jar
         path: target/submit-runner.jar
+        if-no-files-found: error
         retention-days: 7
 
     - name: Upload asset
@@ -146,7 +149,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-amd64
-          path: target/submit-runner-linux-amd64
+          path: target/submit-runner-linux-x86_64
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload asset
@@ -155,7 +159,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           file: target/submit-runner-linux-x86_64
-          name: submit-runner-linux-amd64
+          name: submit-runner-linux-x86_64
           label: Native [amd64]
 
   native-arm64:
@@ -191,6 +195,7 @@ jobs:
         with:
           name: native-arm64
           path: target/submit-runner-linux-aarch64
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload asset
