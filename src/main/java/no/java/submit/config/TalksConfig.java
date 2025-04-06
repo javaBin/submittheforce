@@ -9,12 +9,16 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import no.java.submit.service.TalksService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Base64;
 
 @Dependent
 public class TalksConfig implements ClientHeadersFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(TalksConfig.class);
 
     @ConfigProperty(name = "talks.location", defaultValue = "http://localhost:8082")
     URI location;
@@ -28,6 +32,8 @@ public class TalksConfig implements ClientHeadersFactory {
     @Produces
     @Named("talksService")
     public TalksService loadTalksService() {
+        log.info("Talks location: {}", location);
+
         return QuarkusRestClientBuilder.newBuilder()
                 .baseUri(location)
                 .build(TalksService.class);

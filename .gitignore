@@ -37,7 +37,7 @@ nb-configuration.xml
 *.rej
 
 # Local environment
-.env
+.env*
 
 # Plugin directory
 /.quarkus/cli/plugins/
@@ -46,3 +46,6 @@ nb-configuration.xml
 
 # Web Bundler
 node_modules/
+
+# Extra
+.postgres_data

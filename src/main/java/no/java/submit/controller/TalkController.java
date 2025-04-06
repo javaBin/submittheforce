@@ -18,6 +18,7 @@ import no.java.submit.model.Kind;
 import no.java.submit.service.ConferenceService;
 import no.java.submit.service.TalksService;
 import no.java.submit.service.TimelineService;
+import no.java.submit.util.UserHelper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.ArrayList;
@@ -73,8 +74,7 @@ public class TalkController {
     @GET
     @Path("new")
     public TemplateInstance newSession(@Context SecurityIdentity securityIdentity) {
-        // if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
-        if (timelineService.isClosed(false))
+        if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");
@@ -97,8 +97,7 @@ public class TalkController {
     @Path("new")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Object newSessionPost(SessionForm form, @Context SecurityIdentity securityIdentity) {
-        // if (timelineService.isClosed(((SecurityFilter.MyPrincipal)securityIdentity.getPrincipal()).hasExtension()))
-        if (timelineService.isClosed(false))
+        if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");
@@ -132,7 +131,7 @@ public class TalkController {
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var session = talksService.getSession(securityIdentity.getPrincipal().getName(), sessionId);
 
-        if (!conferenceService.current().id.equals( session.conferenceId))
+        if (!conferenceService.current().id.equals(session.conferenceId))
             throw new NotFoundException();
 
         return sessionForm
