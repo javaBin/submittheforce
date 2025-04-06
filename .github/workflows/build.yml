@@ -32,6 +32,7 @@ jobs:
       with:
         name: target
         path: target
+        if-no-files-found: error
         retention-days: 7
 
   docker-jvm:
@@ -62,7 +63,6 @@ jobs:
       with:
         name: target
         path: target
-        if-no-files-found: error
         retention-days: 7
 
     - name: Build and push [jvm-edge]
@@ -244,8 +244,8 @@ jobs:
           path: target
 
       - name: Build and push [native-edge]
-        run: docker buildx build --push -t ghcr.io/javabin/submittheforce:native-edge -f src/main/docker/Dockerfile.jvm --platform linux/amd64,linux/arm64 .
+        run: docker buildx build --push -t ghcr.io/javabin/submittheforce:native-edge -f src/main/docker/Dockerfile.native-micro --platform linux/amd64,linux/arm64 .
 
       - name: Build and push [native-latest]
         if: startsWith(github.ref, 'refs/tags/v')
-        run: docker buildx build --push -t ghcr.io/javabin/submittheforce:native-latest -f src/main/docker/Dockerfile.jvm --platform linux/amd64,linux/arm64 .
+        run: docker buildx build --push -t ghcr.io/javabin/submittheforce:native-latest -f src/main/docker/Dockerfile.native-micro --platform linux/amd64,linux/arm64 .
