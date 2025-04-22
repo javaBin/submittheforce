@@ -18,13 +18,13 @@ public class SpeakerForm {
     @Email(message = "Valid email address is required")
     public String email;
 
-    @Pattern(regexp = "^$|^@?(\\w){1,15}$", message = "Must be a valid Twitter username")
+    @Pattern(regexp = "^$|^@?(\\w\\-_){1,15}$", message = "Must be a valid Twitter username (e.g. '@username')")
     public String twitter;
 
-    @Pattern(regexp = "^$|^https:\\/\\/[a-z]{2,3}\\.linkedin\\.com\\/.*$", message = "Must be a valid LinkedIn address")
+    @Pattern(regexp = "^$|^https:\\/\\/[a-z]{2,3}\\.linkedin\\.com\\/.*$", message = "Must be a valid LinkedIn address (e.g. 'https://www.linkedin.com/in/username')")
     public String linkedin;
 
-    @Pattern(regexp = "^$|^@?[\\w\\.]{1,50}$", message = "Must be a valid Bluesky username")
+    @Pattern(regexp = "^$|^@?[\\w\\.\\-_]{1,50}$", message = "Must be a valid Bluesky username (e.g. '@username.bsky.social')")
     public String bluesky;
 
     public String residence;

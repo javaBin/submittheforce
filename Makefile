@@ -1,12 +1,15 @@
+dev:
+	@./mvnw quarkus:dev
+
 build:
-	@./mvnw package -B --no-transfer-progress package
+	@./mvnw -B --no-transfer-progress package
 
 build-uber:
-	@./mvnw package -B --no-transfer-progress package -Dquarkus.package.jar.type=uber-jar
+	@./mvnw -B --no-transfer-progress package -Dquarkus.package.jar.type=uber-jar
 
 native:
-	@./mvnw package -B --no-transfer-progress -Dnative -Dquarkus.native.container-build=true
+	@./mvnw -B --no-transfer-progress package -Dnative -Dquarkus.native.container-build=true
 
 clean:
-	@./mvnw clean -B --no-transfer-progress
+	@./mvnw -B --no-transfer-progress clean
 

@@ -1,36 +1,55 @@
-# submit the force
+# Submit the Force
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+The latest incarnation of the Submit, the interface provided to potential speakers to submit their talks to the JavaZone conference.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
 
-## Running the application in dev mode
+## Starting development environment
 
-You can run your application in dev mode that enables live coding using:
+### Configuration of Moresleep
 
-```shell script
-./mvnw quarkus:dev
+To run Moresleep locally, it may be configured using a `.env.moresleep` file. The following is an example of file to make it load talks from the official database:
+
+```dotenv
+SLEEPINGPILL_AUTH=username:password
+LOAD_FROM_SLEEPINGPILL=true
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+To get it up and running:
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```shell
+docker compose up -d moresleep
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+### Configuration of Submit
 
-If you want to build an _über-jar_, execute the following command:
+To configure Submit, use a `.env` file. Content may be similar to the following:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```dotenv
+# Configuration of the application itself (default values)
+APP_URL=http://localhost:8080
+APP_SECRET=JavaZoneForever
+
+# Configuration of the moresleep service (default values)
+TALKS_LOCATION=http://localhost:8082
+TALKS_USERNAME=anon
+TALKS_PASSWORD=anon
+
+# Configuration of OIDC (default values)
+QUARKUS_OIDC_AUTH_SERVER_URL=[configure me]
+QUARKUS_OIDC_CLIENT_ID=[configure me]
+QUARKUS_OIDC_CREDENTIALS_SECRET=[configure me]
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+For active development, run the following command to start the application:
+
+```shell
+make dev
+```
+
+To just get it up and running, run the following command:
+
+```shell
+make build
+docker compose up -d submit
+```
