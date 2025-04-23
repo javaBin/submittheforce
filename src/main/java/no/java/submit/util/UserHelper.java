@@ -9,6 +9,10 @@ public interface UserHelper {
         return (OidcJwtCallerPrincipal) securityIdentity.getPrincipal();
     }
 
+    static String getEmail(SecurityIdentity securityIdentity) {
+        return getPrincipal(securityIdentity).getClaim("email");
+    }
+
     static boolean hasExtension(SecurityIdentity securityIdentity) {
         // TODO
         return false;

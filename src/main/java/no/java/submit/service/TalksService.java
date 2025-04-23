@@ -70,6 +70,19 @@ public interface TalksService {
         public String sessionId, conferenceId, postedBy, status, lastUpdated;
         public Map<String, DataField<Object>> data;
         public List<Speaker> speakers;
+
+        public boolean containsEmail(String email) {
+            System.out.println(email);
+            System.out.println(postedBy);
+            if (email.equals(postedBy))
+                return true;
+
+            for (Speaker speaker : speakers)
+                if (email.equals(speaker.email))
+                    return true;
+
+            return false;
+        }
     }
 
     class Speaker {

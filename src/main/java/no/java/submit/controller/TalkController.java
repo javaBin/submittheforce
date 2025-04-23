@@ -66,7 +66,11 @@ public class TalkController {
     @GET
     @Path("{sessionId}")
     public TemplateInstance view(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
-        var session = talksService.getSession(securityIdentity.getPrincipal().getName(), sessionId);
+        var email = UserHelper.getEmail(securityIdentity);
+        var session = talksService.getSession(email, sessionId);
+
+        if (!session.containsEmail(email))
+            throw new NotAllowedException("Not allowed to view this session");
 
         return talk.data("session", session);
     }
@@ -84,7 +88,7 @@ public class TalkController {
         }};
         form.speakers = new ArrayList<>();
         form.speakers.add(new SpeakerForm() {{
-            this.email = securityIdentity.getPrincipal().getName();
+            this.email = UserHelper.getEmail(securityIdentity);
         }});
 
         return sessionForm
@@ -114,7 +118,7 @@ public class TalkController {
         // Prepare form for sending
         var session = form.asSession();
         session.conferenceId = conferenceService.current().id;
-        session.postedBy = securityIdentity.getPrincipal().getName();
+        session.postedBy = UserHelper.getEmail(securityIdentity);
         session.status = initialStatus;
 
         // Send form data
@@ -129,7 +133,12 @@ public class TalkController {
     @GET
     @Path("{sessionId}/edit")
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
-        var session = talksService.getSession(securityIdentity.getPrincipal().getName(), sessionId);
+        var email = UserHelper.getEmail(securityIdentity);
+
+        var session = talksService.getSession(email, sessionId);
+
+        if (!session.containsEmail(email))
+            throw new NotAllowedException("Not allowed to view this session");
 
         if (!conferenceService.current().id.equals(session.conferenceId))
             throw new NotFoundException();
@@ -155,7 +164,7 @@ public class TalkController {
 
         // Prepare form for sending
         var session = form.asSession();
-        session.postedBy = securityIdentity.getPrincipal().getName();
+        session.postedBy = UserHelper.getEmail(securityIdentity);
         session.sessionId = sessionId;
 
         // Send form data
@@ -164,21 +173,6 @@ public class TalkController {
         // Redirect to preview page
         return Response
                 .seeOther(UriBuilder.fromUri("/talk/{sessionId}").build(sessionId))
-                .build();
-    }
-
-    @POST
-    @Path("{sessionId}/submit")
-    public Response submitTalk(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
-        var session = talksService.getSession(securityIdentity.getPrincipal().getName(), sessionId);
-
-        if (session.conferenceId.equals(conferenceService.current().id)) {
-            session.status = "SUBMITTED";
-            talksService.updateSession(session.postedBy, sessionId, session);
-        }
-
-        return Response
-                .seeOther(UriBuilder.fromUri("/talk/{sessionID}").build(sessionId))
                 .build();
     }
 
