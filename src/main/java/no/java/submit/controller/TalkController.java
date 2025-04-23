@@ -20,6 +20,7 @@ import no.java.submit.service.TalksService;
 import no.java.submit.service.TimelineService;
 import no.java.submit.util.UserHelper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,12 +68,17 @@ public class TalkController {
     @Path("{sessionId}")
     public TemplateInstance view(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
-        var session = talksService.getSession(email, sessionId);
 
-        if (!session.containsEmail(email))
-            throw new NotAllowedException("Not allowed to view this session");
+        try {
+            var session = talksService.getSession(email, sessionId);
 
-        return talk.data("session", session);
+            if (!session.containsEmail(email))
+                throw new NotAuthorizedException("Not allowed to view this session");
+
+            return talk.data("session", session);
+        } catch (ClientWebApplicationException e) {
+            throw new NotAuthorizedException("Not allowed to view this session", e);
+        }
     }
 
     @GET
@@ -135,18 +141,22 @@ public class TalkController {
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
 
-        var session = talksService.getSession(email, sessionId);
+        try {
+            var session = talksService.getSession(email, sessionId);
 
-        if (!session.containsEmail(email))
-            throw new NotAllowedException("Not allowed to view this session");
+            if (!session.containsEmail(email))
+                throw new NotAuthorizedException("Not allowed to view this session");
 
-        if (!conferenceService.current().id.equals(session.conferenceId))
-            throw new NotFoundException();
+            if (!conferenceService.current().id.equals(session.conferenceId))
+                throw new NotFoundException();
 
-        return sessionForm
-                .data("form", SessionForm.parse(session))
-                .data("val", Collections.emptyMap())
-                .data("sessionId", sessionId);
+            return sessionForm
+                    .data("form", SessionForm.parse(session))
+                    .data("val", Collections.emptyMap())
+                    .data("sessionId", sessionId);
+        } catch (ClientWebApplicationException e) {
+            throw new NotAuthorizedException("Not allowed to view this session", e);
+        }
     }
 
     @POST
