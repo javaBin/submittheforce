@@ -173,8 +173,8 @@ jobs:
     needs:
       - build
 
-    matrix:
-      strategy:
+    strategy:
+      matrix:
         include:
           - arch: amd64
             os: ubuntu-latest
