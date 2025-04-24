@@ -36,6 +36,20 @@ services:
       - path: ./.env
         required: false
     environment:
-      - TALKS_LOCATION=${TALKS_LOCATION:-http://moresleep:8082}
+      TALKS_LOCATION: ${TALKS_LOCATION:-http://moresleep:8082}
+    links:
+      - moresleep
+
+  cake:
+    image: ghcr.io/javabin/cake-redux:edge
+    command: ["env-only"]
+    ports:
+      - "8081:8081"
+    env_file:
+      - path: ./.env.cake
+        required: false
+    environment:
+      SLEEPINGPILL_BASE_LOCATION: http://moresleep:8082
+      NO_AUTH_MODE: true
     links:
       - moresleep

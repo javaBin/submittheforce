@@ -72,8 +72,6 @@ public interface TalksService {
         public List<Speaker> speakers;
 
         public boolean containsEmail(String email) {
-            System.out.println(email);
-            System.out.println(postedBy);
             if (email.equals(postedBy))
                 return true;
 
