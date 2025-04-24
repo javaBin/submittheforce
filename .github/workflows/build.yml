@@ -167,11 +167,21 @@ jobs:
         type: application/java-archive
         label: Uber-JAR
 
-  native-amd64:
-    name: Native [amd64]
-    runs-on: ubuntu-latest
+  native:
+    name: Native
+    runs-on: ${{ matrix.os }}
     needs:
       - build
+
+    matrix:
+      strategy:
+        include:
+          - arch: amd64
+            os: ubuntu-latest
+            ident: x86_64
+          - arch: arm64
+            os: ubuntu-24.04-arm
+            ident: aarch64
 
     steps:
       - name: Checkout
@@ -198,13 +208,13 @@ jobs:
         run: make native
 
       - name: Rename file
-        run: mv target/submit-runner target/submit-runner-linux-x86_64
+        run: mv target/submit-runner target/submit-runner-linux-${{ matrix.ident }}
 
-      - name: Upload artifact [native-amd64]
+      - name: Upload artifact [native-${{ matrix.arch }}]
         uses: actions/upload-artifact@v4
         with:
-          name: native-amd64
-          path: target/submit-runner-linux-x86_64
+          name: native-${{ matrix.arch }}
+          path: target/submit-runner-linux-${{ matrix.ident }}
           if-no-files-found: error
           retention-days: 7
 
@@ -213,66 +223,15 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/submit-runner-linux-x86_64
-          name: submit-${{ env.PROJECT_VERSION }}-native-linux-x86_64
-          label: Native [amd64]
-
-  native-arm64:
-    name: Native [arm64]
-    runs-on: ubuntu-24.04-arm
-    needs:
-      - build
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Prepare version labels
-        uses: k15g/action-version-labels@edge
-        with:
-          prefix: project
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Download artifact [target]
-        uses: actions/download-artifact@v4
-        with:
-          name: target
-          path: target
-
-      - name: Build native
-        run: make native
-
-      - name: Rename file
-        run: mv target/submit-runner target/submit-runner-linux-aarch64
-
-      - name: Upload artifact [native-arm64]
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-arm64
-          path: target/submit-runner-linux-aarch64
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload asset
-        uses: k15g/action-github-asset-upload@edge
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/submit-runner-linux-aarch64
-          name: submit-${{ env.PROJECT_VERSION }}-native-linux-aarch64
-          label: Native [arm64]
+          file: target/submit-runner-linux-${{ matrix.ident }}
+          name: submit-${{ env.PROJECT_VERSION }}-native-linux-${{ matrix.ident }}
+          label: Native [${{ matrix.arch }}]
 
   docker-native:
     name: Docker [Native]
     runs-on: ubuntu-latest
     needs:
-      - native-amd64
-      - native-arm64
+      - native
 
     steps:
       - name: Checkout
