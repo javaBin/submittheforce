@@ -43,7 +43,7 @@ public class SpeakerForm {
             result.put("twitter", new TalksService.DataField<>(false, twitter));
         if (bluesky != null && !bluesky.isBlank())
             result.put("bluesky", new TalksService.DataField<>(false, bluesky));
-        if (linkedin != null && !bluesky.isBlank())
+        if (linkedin != null && !linkedin.isBlank())
             result.put("linkedin", new TalksService.DataField<>(false, linkedin));
         if (residence != null && !residence.isBlank())
             result.put("residence", new TalksService.DataField<>(false, residence));
