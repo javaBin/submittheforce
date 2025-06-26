@@ -1,4 +1,5 @@
 {#include partial/base}
+{#let tags=session:tags(session)}
     <h1>{session.data["title"]}</h1>
 
     <ul class="details">
@@ -9,10 +10,30 @@
         {#if session.conferenceId != conference:current.id}
         <li>{conferences.id(session.conferenceId).name}</li>
         {/if}
+        {#if tags.contains("rejected")}
+        <li>Rejected</li>
+        {#else if tags.contains("trukket") || tags.contains("withdrawn")}
+        <li>Withdrawn</li>
+        {#else if tags.contains("accepted") && tags.contains("confirmed")}
+        <li>Confirmed</li>
+        {#else if tags.contains("accepted")}
+        <li>Accepted</li>
+        <li><a href="https://cakeredux.javazone.no/confirm.html?id={session.sessionId}">Confirm</a></li>
+        {/if}
         {#if session.conferenceId == conference:current.id}
         <li><a href="/talk/{session.sessionId}/edit">Edit</a></li>
         {/if}
     </ul>
+
+    {#if tags.contains("accepted") && !tags.contains("confirmed")}
+    <div class="submit">
+        <form>
+            <p>This proposal accepted but not yet confirmed.</p>
+
+            <a href="https://cakeredux.javazone.no/confirm.html?id={session.sessionId}" class="button">Confirm</a>
+        </form>
+    </div>
+    {/if}
 
     {#if session.status == "DRAFT" && session.conferenceId == conference:current.id}
     <div class="submit">
@@ -69,5 +90,6 @@
         <p style="white-space: pre-wrap;">{speaker.data["bio"]}</p>
         {/if}
     {/for}
+{/let}
 
 {/include}

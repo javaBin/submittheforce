@@ -312,10 +312,11 @@ div.submit {
         margin: 0 0 20pt;
     }
 
-    input, button {
+    input, button, a.button {
         background-color: var(--submit-background-color);
         color: var(--submit-text-color);
         border: 2px solid var(--submit-text-color);
+        text-decoration: none;
         padding: 10pt;
         border-radius: 4pt;
         font-size: 1.1em;
@@ -328,6 +329,10 @@ div.submit {
 
 div.session-item {
     margin-bottom: 10pt;
+
+    &.out, &.out a {
+        color: var(--subtext-color);
+    }
 
     ul {
         margin: 3pt 0 0;

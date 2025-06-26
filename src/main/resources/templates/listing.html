@@ -36,18 +36,27 @@
                 {/if}
             {#else}
                 {#for session in talks}
-                    <div class="session-item">
+                    {#let tags=session:tags(session)}
+                    <div class="session-item{#if tags.contains("rejected") || tags.contains("trukket") || tags.contains("withdrawn")} out{/if}">
                         <a href="/talk/{session.sessionId}">{session.data["title"]}</a>
 
                         <ul>
                             <li>{Kind:of(session.data).name}</li>
                             <li>{Language:of(session.data).name}</li>
-                            {#if session.status == "APPROVED"}
-                            <li>Approved</li>
+                            {#if tags.contains("rejected")}
+                            <li>Rejected</li>
+                            {#else if tags.contains("trukket") || tags.contains("withdrawn")}
+                            <li>Withdrawn</li>
+                            {#else if tags.contains("accepted") && tags.contains("confirmed")}
+                            <li>Confirmed</li>
+                            {#else if tags.contains("accepted")}
+                            <li>Accepted</li>
+                            <li><a href="https://cakeredux.javazone.no/confirm.html?id={session.sessionId}">Confirm</a></li>
                             {/if}
                             <li><a href="/talk/{session.sessionId}/edit">Edit</a></li>
                         </ul>
                     </div>
+                    {/let}
                 {/for}
             {/if}
         </div>
