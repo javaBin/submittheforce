@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +15,16 @@ import java.time.temporal.ChronoUnit;
 @ApplicationScoped
 public class TimelineService {
 
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d");
 
     @ConfigProperty(name = "timeline.opening")
     public Instant opening;
 
     @ConfigProperty(name = "timeline.closing")
     Instant closing;
+
+    @ConfigProperty(name = "timeline.finalized")
+    Instant finalized;
 
     @ConfigProperty(name = "timeline.feedback")
     Instant feedback;
@@ -55,6 +57,10 @@ public class TimelineService {
             return false;
 
         return getClosingHard().isBefore(LocalDateTime.now());
+    }
+
+    public boolean isFinalized() {
+        return finalized != null && finalized.isBefore(Instant.now());
     }
 
     public String format(LocalDate date) {

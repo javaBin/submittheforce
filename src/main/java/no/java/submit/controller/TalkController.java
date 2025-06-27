@@ -6,6 +6,7 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -18,16 +19,18 @@ import no.java.submit.model.Kind;
 import no.java.submit.service.ConferenceService;
 import no.java.submit.service.TalksService;
 import no.java.submit.service.TimelineService;
+import no.java.submit.util.SessionSecretHelper;
 import no.java.submit.util.UserHelper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
+import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("talk")
-@Authenticated
 @Blocking
 @Produces(MediaType.TEXT_HTML)
 public class TalkController {
@@ -45,6 +48,9 @@ public class TalkController {
     TimelineService timelineService;
 
     @Inject
+    SessionSecretHelper sessionSecrets;
+
+    @Inject
     Template talk;
 
     @Inject
@@ -59,13 +65,19 @@ public class TalkController {
     @Inject
     Validator validator;
 
+    @Inject
+    @Named("app.admins")
+    List<String> appAdmins;
+
     @GET
+    @Authenticated
     public TemplateInstance all() {
         return all.instance();
     }
 
     @GET
     @Path("{sessionId}")
+    @Authenticated
     public TemplateInstance view(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
 
@@ -75,14 +87,47 @@ public class TalkController {
             if (!session.containsEmail(email))
                 throw new NotAuthorizedException("Not allowed to view this session");
 
-            return talk.data("session", session);
+            return talk
+                    .data("session", session)
+                    .data("secret", null);
         } catch (ClientWebApplicationException e) {
             throw new NotAuthorizedException("Not allowed to view this session", e);
         }
     }
 
     @GET
+    @Path("{sessionId}/{secret}")
+    public TemplateInstance view(@PathParam("sessionId") String sessionId, @PathParam("secret") String secret) {
+        sessionSecrets.validate(sessionId, secret);
+
+        try {
+            var session = talksService.getSession("", sessionId);
+
+            return talk
+                    .data("session", session)
+                    .data("secret", secret);
+        } catch (ClientWebApplicationException e) {
+            throw new NotAuthorizedException("Not allowed to view this session", e);
+        }
+    }
+
+    @GET
+    @Path("{sessionId}/secret")
+    @Authenticated
+    public RestResponse<?> redirectWithSecret(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
+        var email = UserHelper.getEmail(securityIdentity);
+
+        if (!appAdmins.contains(email))
+            throw new NotAuthorizedException("Not admin");
+
+        return RestResponse.seeOther(UriBuilder
+                .fromUri(String.format("/talk/%s/%s", sessionId, sessionSecrets.get(sessionId)))
+                .build());
+    }
+
+    @GET
     @Path("new")
+    @Authenticated
     public TemplateInstance newSession(@Context SecurityIdentity securityIdentity) {
         if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
             return error
@@ -106,6 +151,7 @@ public class TalkController {
     @POST
     @Path("new")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Authenticated
     public Object newSessionPost(SessionForm form, @Context SecurityIdentity securityIdentity) {
         if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
             return error
@@ -138,13 +184,26 @@ public class TalkController {
 
     @GET
     @Path("{sessionId}/edit")
+    @Authenticated
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
 
+        return editSession(sessionId, email, null);
+    }
+
+    @GET
+    @Path("{sessionId}/{secret}/edit")
+    public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @PathParam("secret") String secret) {
+        sessionSecrets.validate(sessionId, secret);
+
+        return editSession(sessionId, "", secret);
+    }
+
+    public TemplateInstance editSession(String sessionId, String email, String secret) {
         try {
             var session = talksService.getSession(email, sessionId);
 
-            if (!session.containsEmail(email))
+            if (!email.isEmpty() && !session.containsEmail(email))
                 throw new NotAuthorizedException("Not allowed to view this session");
 
             if (!conferenceService.current().id.equals(session.conferenceId))
@@ -153,7 +212,8 @@ public class TalkController {
             return sessionForm
                     .data("form", SessionForm.parse(session))
                     .data("val", Collections.emptyMap())
-                    .data("sessionId", sessionId);
+                    .data("sessionId", sessionId)
+                    .data("secret", secret);
         } catch (ClientWebApplicationException e) {
             throw new NotAuthorizedException("Not allowed to view this session", e);
         }
@@ -162,6 +222,7 @@ public class TalkController {
     @POST
     @Path("{sessionId}/edit")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Authenticated
     public Object editSessionPost(@PathParam("sessionId") String sessionId, SessionForm form, @Context SecurityIdentity securityIdentity) {
         // Validate form and present form if there are any errors
         var validation = validator.validate(form);

@@ -18,17 +18,16 @@
         <li>Confirmed</li>
         {#else if tags.contains("accepted")}
         <li>Accepted</li>
-        <li><a href="https://cakeredux.javazone.no/confirm.html?id={session.sessionId}">Confirm</a></li>
         {/if}
         {#if session.conferenceId == conference:current.id}
-        <li><a href="/talk/{session.sessionId}/edit">Edit</a></li>
+        <li><a href="/talk/{session.sessionId}{#if secret != null}/{secret}{/if}/edit">Edit</a></li>
         {/if}
     </ul>
 
     {#if tags.contains("accepted") && !tags.contains("confirmed")}
     <div class="submit">
         <form>
-            <p>This proposal accepted but not yet confirmed.</p>
+            <p>This proposal is accepted but not yet confirmed.</p>
 
             <a href="https://cakeredux.javazone.no/confirm.html?id={session.sessionId}" class="button">Confirm</a>
         </form>

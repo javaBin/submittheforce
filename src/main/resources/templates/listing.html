@@ -18,14 +18,14 @@
             </ul>
 
             {#if closed}
-                <div class="submit">
+                <!-- <div class="submit">
                     <p>We are past the deadline for new submissions</p>
 
                     <form hx-post="/login/extend" hx-target="body">
                         <input type="text" name="code" placeholder="Code for extension" required="required"/>
                         <button>Verify</button>
                     </form>
-                </div>
+                </div> -->
             {/if}
 
             {#if talks.isEmpty}

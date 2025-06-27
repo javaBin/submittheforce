@@ -166,7 +166,7 @@
     </div>
 
     <div class="buttons">
-        <a href="{#if sessionId == null}/{#else}/talk/{sessionId}{/if}">Cancel</a>
+        <a href="{#if sessionId == null}/{#else}/talk/{sessionId}{#if secret != null}/{secret}{/if}{/if}">Cancel</a>
         <button type="submit">Save</button>
     </div>
 </form>
