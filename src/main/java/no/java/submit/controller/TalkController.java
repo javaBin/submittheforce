@@ -19,6 +19,7 @@ import no.java.submit.model.Kind;
 import no.java.submit.service.ConferenceService;
 import no.java.submit.service.TalksService;
 import no.java.submit.service.TimelineService;
+import no.java.submit.util.SessionHelper;
 import no.java.submit.util.SessionSecretHelper;
 import no.java.submit.util.UserHelper;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -57,6 +58,9 @@ public class TalkController {
     Template sessionForm;
 
     @Inject
+    Template sessionFormClosed;
+
+    @Inject
     Template all;
 
     @Inject
@@ -84,7 +88,7 @@ public class TalkController {
         try {
             var session = talksService.getSession(email, sessionId);
 
-            if (!session.containsEmail(email))
+            if (!email.isEmpty() && !session.containsEmail(email) && !appAdmins.contains(email))
                 throw new NotAuthorizedException("Not allowed to view this session");
 
             return talk
@@ -203,13 +207,13 @@ public class TalkController {
         try {
             var session = talksService.getSession(email, sessionId);
 
-            if (!email.isEmpty() && !session.containsEmail(email))
-                throw new NotAuthorizedException("Not allowed to view this session");
+            if (!email.isEmpty() && !session.containsEmail(email) && !appAdmins.contains(email))
+                throw new NotAuthorizedException("Not allowed to edit this session");
 
             if (!conferenceService.current().id.equals(session.conferenceId))
                 throw new NotFoundException();
 
-            return sessionForm
+            return (timelineService.isClosed(appAdmins.contains(email)) ? sessionFormClosed : sessionForm)
                     .data("form", SessionForm.parse(session))
                     .data("val", Collections.emptyMap())
                     .data("sessionId", sessionId)
@@ -224,22 +228,57 @@ public class TalkController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Authenticated
     public Object editSessionPost(@PathParam("sessionId") String sessionId, SessionForm form, @Context SecurityIdentity securityIdentity) {
+        var email = UserHelper.getEmail(securityIdentity);
+
+        return editSessionPost(sessionId, form, email, null);
+    }
+
+    @POST
+    @Path("{sessionId}/{secret}/edit")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Object editSessionPost(@PathParam("sessionId") String sessionId, @PathParam("secret") String secret, SessionForm form) {
+        sessionSecrets.validate(sessionId, secret);
+
+        return editSessionPost(sessionId, form, "", secret);
+    }
+
+    public Object editSessionPost(String sessionId, SessionForm form, String email, String secret) {
         // Validate form and present form if there are any errors
         var validation = validator.validate(form);
         if (!validation.isEmpty()) {
-            return sessionForm
+            return (timelineService.isClosed(appAdmins.contains(email)) ? sessionFormClosed : sessionForm)
                     .data("form", form)
                     .data("val", validation.stream().collect(Collectors.groupingBy(c -> c.getPropertyPath().toString())))
-                    .data("sessionId", sessionId);
+                    .data("sessionId", sessionId)
+                    .data("secret", secret);
         }
 
+        // Fetch current session
+        var session = talksService.getSession(email, sessionId);
+
+        if (!email.isEmpty() && !session.containsEmail(email) && !appAdmins.contains(email))
+            throw new NotAuthorizedException("Not allowed to edit this session");
+
         // Prepare form for sending
-        var session = form.asSession();
-        session.postedBy = UserHelper.getEmail(securityIdentity);
-        session.sessionId = sessionId;
+        var newSession = form.asSession();
+
+        if (timelineService.isClosed(appAdmins.contains(email))) {
+            SessionHelper.partialUpdate(session, newSession);
+        } else {
+            // Update session with new data
+            session.data = newSession.data;
+            session.speakers = newSession.speakers;
+        }
 
         // Send form data
         talksService.updateSession(session.postedBy, sessionId, session);
+
+        if (secret != null) {
+            // Redirect to preview page with secret
+            return Response
+                    .seeOther(UriBuilder.fromUri("/talk/{sessionId}/{secret}").build(sessionId, secret))
+                    .build();
+        }
 
         // Redirect to preview page
         return Response

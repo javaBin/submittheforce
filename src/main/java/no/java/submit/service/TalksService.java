@@ -81,6 +81,15 @@ public interface TalksService {
 
             return false;
         }
+
+        public Speaker getSpeaker(String name) {
+            for (Speaker speaker : speakers) {
+                if (speaker.name.equals(name)) {
+                    return speaker;
+                }
+            }
+            return null;
+        }
     }
 
     class Speaker {

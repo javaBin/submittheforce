@@ -23,9 +23,6 @@ public class TimelineService {
     @ConfigProperty(name = "timeline.closing")
     Instant closing;
 
-    @ConfigProperty(name = "timeline.finalized")
-    Instant finalized;
-
     @ConfigProperty(name = "timeline.feedback")
     Instant feedback;
 
@@ -57,10 +54,6 @@ public class TimelineService {
             return false;
 
         return getClosingHard().isBefore(LocalDateTime.now());
-    }
-
-    public boolean isFinalized() {
-        return finalized != null && finalized.isBefore(Instant.now());
     }
 
     public String format(LocalDate date) {

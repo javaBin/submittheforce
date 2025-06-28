@@ -249,6 +249,11 @@ form.talk {
             }
         }
 
+        input:disabled, textarea:disabled, select:disabled {
+            color: var(--subtext-color);
+            cursor: not-allowed;
+        }}
+
         &.required label::after {
             content: "*";
             padding: 0 3pt;

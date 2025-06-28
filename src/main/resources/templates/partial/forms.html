@@ -1,21 +1,26 @@
 {#fragment inputText}
+{@Boolean disabled=false}
 <div class="field{#if required} required{/if}{#if val.containsKey(path)} error{/if}">
     <label for="form-{path}">{title}</label>
     {#if description != null}
     <p>{description}</p>
     {/if}
-    <input type="{type}" name="{path}" value="{value}" id="form-{path}"{#if placeholder != null} placeholder="{placeholder}"{/if}{#if required} required="required"{/if}/>
+    {#if disabled}
+    <input type="hidden" name="{path}" value="{value}"/>
+    {/if}
+    <input type="{type}" name="{path}" value="{value}" id="form-{path}"{#if placeholder != null} placeholder="{placeholder}"{/if}{#if required} required="required"{/if}{#if disabled} disabled="disabled"{/if}/>
     {#include partial/forms$validation /}
 </div>
 {/fragment}
 
 {#fragment textarea}
+{@Boolean disabled=false}
 <div class="field{#if required} required{/if}{#if val.containsKey(path)} error{/if}">
     <label for="form-{path}">{title}</label>
     {#if description != null}
     <p>{description}</p>
     {/if}
-    <textarea name="{path}" rows="{rows}" id="form-{path}">{value}</textarea>
+    <textarea name="{path}" rows="{rows}" id="form-{path}"{#if disabled} disabled="disabled"{/if}>{value}</textarea>
     {#include partial/forms$validation /}
 </div>
 {/fragment}
