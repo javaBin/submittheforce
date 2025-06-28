@@ -29,6 +29,7 @@ To configure Submit, use a `.env` file. Content may be similar to the following:
 # Configuration of the application itself (default values)
 APP_URL=http://localhost:8080
 APP_SECRET=JavaZoneForever
+APP_ADMINS=admin@example.com,me@example.com
 
 # Configuration of the moresleep service (default values)
 TALKS_LOCATION=http://localhost:8082
