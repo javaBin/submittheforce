@@ -46,9 +46,9 @@ public class SpeakerForm {
         if (linkedin != null && !linkedin.isBlank())
             result.put("linkedin", new TalksService.DataField<>(false, linkedin));
         if (residence != null && !residence.isBlank())
-            result.put("residence", new TalksService.DataField<>(false, residence));
+            result.put("residence", new TalksService.DataField<>(true, residence));
         if (zipCode != null && !zipCode.isBlank())
-            result.put("zip-code", new TalksService.DataField<>(false, zipCode));
+            result.put("zip-code", new TalksService.DataField<>(true, zipCode));
 
         return result;
     }

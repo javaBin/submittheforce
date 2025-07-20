@@ -1,1 +1,0 @@
-web: java -Dquarkus.http.port=5000 -jar app.jar
