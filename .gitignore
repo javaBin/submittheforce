@@ -48,4 +48,4 @@ nb-configuration.xml
 node_modules/
 
 # Extra
-.postgres_data
+.postgres_data*

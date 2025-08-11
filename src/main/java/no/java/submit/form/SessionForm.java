@@ -101,7 +101,8 @@ public class SessionForm {
         result.language = Language.of(source.data);
         result.abstractText = (String) source.data.get("abstract").value;
         result.outline = (String) source.data.get("outline").value;
-        result.intendedAudience = (String) source.data.get("intendedAudience").value;
+        if (source.data.containsKey("intendedAudience"))
+            result.intendedAudience = (String) source.data.get("intendedAudience").value;
         if (source.data.containsKey("equipment"))
             result.equipment = (String) source.data.get("equipment").value;
         if (source.data.containsKey("participation"))
