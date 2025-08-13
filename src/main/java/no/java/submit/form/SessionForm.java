@@ -81,7 +81,7 @@ public class SessionForm {
         result.put("suggestedCategory", new TalksService.DataField<>(true, suggestedCategory != null ? suggestedCategory.tag : ""));
 
         if (kind.isWorkshop())
-            result.put("workshopPrerequisites", new TalksService.DataField<>(true, workshopPrerequisites));
+            result.put("workshopPrerequisites", new TalksService.DataField<>(false, workshopPrerequisites));
 
         return result;
     }
