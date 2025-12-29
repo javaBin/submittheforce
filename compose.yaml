@@ -41,7 +41,7 @@ services:
       - moresleep
 
   cake:
-    image: ghcr.io/javabin/cake-redux:edge
+    image: ghcr.io/javabin/cake-redux@sha256:1010acc839eccd5694743efd676ada2ff40e0dedc6dc75025ecbc33976821a9c
     command: ["env-only"]
     ports:
       - "8081:8081"

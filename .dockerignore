@@ -2,5 +2,9 @@
 !target/*-runner-*
 !target/*-runner.jar
 !target/lib/*
+!src
+!pom.xml
+!mvnw
+!.mvn
 !target/quarkus-app/*
 .env
