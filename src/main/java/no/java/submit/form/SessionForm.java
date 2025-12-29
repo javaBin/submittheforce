@@ -49,6 +49,8 @@ public class SessionForm {
 
     public Category suggestedCategory;
 
+    public boolean interestedInLocalCommunity;
+
     @AssertTrue(message = "Must select a valid option")
     // Make sure one of the active kinds are selected
     private boolean isKind() {
@@ -79,6 +81,7 @@ public class SessionForm {
         result.put("suggestedKeywords", new TalksService.DataField<>(false, suggestedKeywords));
         result.put("infoToProgramCommittee", new TalksService.DataField<>(true, infoToProgramCommittee));
         result.put("suggestedCategory", new TalksService.DataField<>(true, suggestedCategory != null ? suggestedCategory.tag : ""));
+        result.put("interestedInLocalCommunity", new TalksService.DataField<>(true, interestedInLocalCommunity));
 
         if (kind.isWorkshop())
             result.put("workshopPrerequisites", new TalksService.DataField<>(false, workshopPrerequisites));
@@ -115,6 +118,8 @@ public class SessionForm {
             result.infoToProgramCommittee = (String) source.data.get("infoToProgramCommittee").value;
         if (source.data.containsKey("suggestedCategory"))
             result.suggestedCategory = Category.of((String) source.data.get("suggestedCategory").value);
+        if (source.data.containsKey("interestedInLocalCommunity"))
+            result.interestedInLocalCommunity = Boolean.parseBoolean(source.data.get("interestedInLocalCommunity").value.toString());
 
         result.speakers = source.speakers.stream().map(SpeakerForm::parse).toList();
 

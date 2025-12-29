@@ -32,3 +32,17 @@
         {/for}
     {/if}
 {/fragment}
+
+{#fragment checkbox}
+{@Boolean disabled=false}
+<div class="field{#if val.containsKey(path)} error{/if}">
+    <label for="form-{path}" class="checkbox">
+        <input type="checkbox" name="{path}" id="form-{path}" value="true"{#if value} checked="checked"{/if}{#if disabled} disabled="disabled"{/if}/>
+        {title}
+    </label>
+    {#if description != null}
+    <p>{description}</p>
+    {/if}
+    {#include partial/forms$validation /}
+</div>
+{/fragment}

@@ -101,6 +101,12 @@
 
     <p>All talks at JavaZone are filmed, live-streamed and published for free at Vimeo after the conference. Should you have any reservations about this, let the program committee know in the field above. This might affect your chance of getting selected, but if you have a good reason please let us know.</p>
 
+    {#include partial/forms$checkbox
+        title="I am/we are open to presenting this talk at a local community meetup."
+        path="interestedInLocalCommunity"
+        value=form.interestedInLocalCommunity
+        description="javaBin organizes meetups in local communities across Norway. By checking this box, you indicate that you’d be open to presenting this talk at one of our local user groups, regardless of whether it is accepted for JavaZone. If this happens, javaBin will cover reasonable travel and accommodation expenses. This option is also available to international speakers." /}
+
     <div id="speakers">
         {#for speaker in form.speakers}
         {#fragment id=speaker}

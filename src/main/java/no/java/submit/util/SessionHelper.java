@@ -30,7 +30,7 @@ public interface SessionHelper {
     }
 
     static void partialUpdate(TalksService.Session session, TalksService.Session updates) {
-        for (var key : Arrays.asList("title", "abstract", "outline", "intendedAudience", "equipment", "participation", "workshopPrerequisites", "suggestedKeywords", "infoToProgramCommittee")) {
+        for (var key : Arrays.asList("title", "abstract", "outline", "intendedAudience", "equipment", "participation", "workshopPrerequisites", "suggestedKeywords", "infoToProgramCommittee", "interestedInLocalCommunity")) {
             if (updates.data.containsKey(key))
                 session.data.put(key, updates.data.get(key));
             else
