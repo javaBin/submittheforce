@@ -19,6 +19,7 @@ import no.java.submit.model.Kind;
 import no.java.submit.service.ConferenceService;
 import no.java.submit.service.TalksService;
 import no.java.submit.service.TimelineService;
+import no.java.submit.util.ExtensionService;
 import no.java.submit.util.SessionHelper;
 import no.java.submit.util.SessionSecretHelper;
 import no.java.submit.util.UserHelper;
@@ -50,6 +51,9 @@ public class TalkController {
 
     @Inject
     SessionSecretHelper sessionSecrets;
+
+    @Inject
+    ExtensionService extensionService;
 
     @Inject
     Template talk;
@@ -133,7 +137,7 @@ public class TalkController {
     @Path("new")
     @Authenticated
     public TemplateInstance newSession(@Context SecurityIdentity securityIdentity) {
-        if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
+        if (timelineService.isClosed(extensionService.has(securityIdentity)))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");
@@ -157,7 +161,7 @@ public class TalkController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Authenticated
     public Object newSessionPost(SessionForm form, @Context SecurityIdentity securityIdentity) {
-        if (timelineService.isClosed(UserHelper.hasExtension(securityIdentity)))
+        if (timelineService.isClosed(extensionService.has(securityIdentity)))
             return error
                     .data("title", "Too late")
                     .data("message", "It is past deadline for submission of new talks.");
@@ -192,7 +196,7 @@ public class TalkController {
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
 
-        return editSession(sessionId, email, null);
+        return editSession(sessionId, email, null, extensionService.has(securityIdentity));
     }
 
     @GET
@@ -200,10 +204,10 @@ public class TalkController {
     public TemplateInstance editSession(@PathParam("sessionId") String sessionId, @PathParam("secret") String secret) {
         sessionSecrets.validate(sessionId, secret);
 
-        return editSession(sessionId, "", secret);
+        return editSession(sessionId, "", secret, false);
     }
 
-    public TemplateInstance editSession(String sessionId, String email, String secret) {
+    public TemplateInstance editSession(String sessionId, String email, String secret, boolean hasExtension) {
         try {
             var session = talksService.getSession(email, sessionId);
 
@@ -213,7 +217,7 @@ public class TalkController {
             if (!conferenceService.current().id.equals(session.conferenceId))
                 throw new NotFoundException();
 
-            return (timelineService.isClosed(appAdmins.contains(email)) ? sessionFormClosed : sessionForm)
+            return (timelineService.isClosed(appAdmins.contains(email) || hasExtension) ? sessionFormClosed : sessionForm)
                     .data("form", SessionForm.parse(session))
                     .data("val", Collections.emptyMap())
                     .data("sessionId", sessionId)
@@ -230,7 +234,7 @@ public class TalkController {
     public Object editSessionPost(@PathParam("sessionId") String sessionId, SessionForm form, @Context SecurityIdentity securityIdentity) {
         var email = UserHelper.getEmail(securityIdentity);
 
-        return editSessionPost(sessionId, form, email, null);
+        return editSessionPost(sessionId, form, email, null, extensionService.has(securityIdentity));
     }
 
     @POST
@@ -239,14 +243,14 @@ public class TalkController {
     public Object editSessionPost(@PathParam("sessionId") String sessionId, @PathParam("secret") String secret, SessionForm form) {
         sessionSecrets.validate(sessionId, secret);
 
-        return editSessionPost(sessionId, form, "", secret);
+        return editSessionPost(sessionId, form, "", secret, false);
     }
 
-    public Object editSessionPost(String sessionId, SessionForm form, String email, String secret) {
+    public Object editSessionPost(String sessionId, SessionForm form, String email, String secret, boolean hasExtension) {
         // Validate form and present form if there are any errors
         var validation = validator.validate(form);
         if (!validation.isEmpty()) {
-            return (timelineService.isClosed(appAdmins.contains(email)) ? sessionFormClosed : sessionForm)
+            return (timelineService.isClosed(appAdmins.contains(email) || hasExtension) ? sessionFormClosed : sessionForm)
                     .data("form", form)
                     .data("val", validation.stream().collect(Collectors.groupingBy(c -> c.getPropertyPath().toString())))
                     .data("sessionId", sessionId)
@@ -262,7 +266,7 @@ public class TalkController {
         // Prepare form for sending
         var newSession = form.asSession();
 
-        if (timelineService.isClosed(appAdmins.contains(email))) {
+        if (timelineService.isClosed(appAdmins.contains(email) || hasExtension)) {
             SessionHelper.partialUpdate(session, newSession);
         } else {
             // Update session with new data

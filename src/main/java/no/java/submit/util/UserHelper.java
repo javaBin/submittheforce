@@ -12,11 +12,4 @@ public interface UserHelper {
     static String getEmail(SecurityIdentity securityIdentity) {
         return getPrincipal(securityIdentity).getClaim("email");
     }
-
-    static boolean hasExtension(SecurityIdentity securityIdentity) {
-        // TODO
-        return false;
-        /* return getPrincipal(securityIdentity).getGroups().stream()
-                .anyMatch(group -> group.equals("extension")); */
-    }
 }

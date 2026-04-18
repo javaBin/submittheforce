@@ -1,0 +1,54 @@
+{#include partial/base}
+<h1>Extension code</h1>
+
+{#if error != null}
+<div class="message error">{error}</div>
+{/if}
+
+{#if valid != null}
+<div class="message">Your extension is active and valid through <strong>{valid}</strong>.</div>
+{/if}
+
+<form method="post" action="/code/use" class="talk">
+    <h2>Use a code</h2>
+    <p>Paste the extension code you received to regain access to submit or edit a talk after the deadline. The code is tied to your account.</p>
+
+    <div class="field required">
+        <label for="form-code">Code</label>
+        <input type="text" name="code" id="form-code" required="required" autocomplete="off"/>
+    </div>
+
+    <div class="submit">
+        <button type="submit">Activate</button>
+    </div>
+</form>
+
+{#if isAdmin}
+<form method="post" action="/code/generate" class="talk">
+    <h2>Generate a code (admin)</h2>
+    <p>Produce an extension code for a specific speaker. The code grants access through and including the chosen date.</p>
+
+    <div class="split">
+        <div class="field required">
+            <label for="form-date">Valid through</label>
+            <input type="date" name="date" id="form-date" value="{generated?.date ?: ''}" required="required"/>
+        </div>
+        <div class="field required">
+            <label for="form-email">Speaker email</label>
+            <input type="email" name="email" id="form-email" value="{generated?.email ?: ''}" required="required"/>
+        </div>
+    </div>
+
+    <div class="submit">
+        <button type="submit">Generate</button>
+    </div>
+</form>
+
+{#if generated != null}
+<div class="message">
+    <p>Code for <strong>{generated.email}</strong>, valid through <strong>{generated.date}</strong>:</p>
+    <pre>{generated.code}</pre>
+</div>
+{/if}
+{/if}
+{/include}
